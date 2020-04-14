@@ -1,6 +1,6 @@
 # Highlights
 - no android data binding
-- SDK api doesn't have third party dependencies like `LideData`, so no version conflicts and easier internal dependencies updates
+- SDK api doesn't have third party dependencies like `LideData`, so no version conflicts or api breaks, and easier internal dependencies updates
 - one line initialisation of ViewModels or completely custom implementation
 - automatic unsubscription when Fragment/Activity is destroyed
 - viewmodels are disconnected from views
