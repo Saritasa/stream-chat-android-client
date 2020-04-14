@@ -1,11 +1,9 @@
 package io.getstream.chat.android.client.utils.observable
 
-import io.getstream.chat.android.client.events.ChatEvent
-
-open class Subscription(
-    private val observable: ChatObservable,
-    private var listener: ((ChatEvent) -> Unit)?,
-    private val filters: MutableList<(event: ChatEvent) -> Boolean> = mutableListOf(),
+open class Subscription<T>(
+    private val observable: ChatObservable<T>,
+    private var listener: ((T) -> Unit)?,
+    private val filters: MutableList<(event: T) -> Boolean> = mutableListOf(),
     private val firstOnly: Boolean
 ) {
 
@@ -17,7 +15,7 @@ open class Subscription(
         observable.unsubscribe(this)
     }
 
-    fun onNext(event: ChatEvent) {
+    fun onNext(event: T) {
 
         if (filters.isEmpty()) {
             deliver(event)
@@ -32,7 +30,7 @@ open class Subscription(
 
     }
 
-    private fun deliver(event: ChatEvent) {
+    private fun deliver(event: T) {
         if (firstOnly) {
             if (deliveredCounter == 0) {
                 deliveredCounter = 1

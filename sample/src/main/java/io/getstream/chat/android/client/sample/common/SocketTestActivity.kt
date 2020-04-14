@@ -17,7 +17,7 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 class SocketTestActivity : AppCompatActivity() {
 
-    var subs = mutableListOf<Subscription>()
+    var subs = mutableListOf<Subscription<ChatEvent>>()
 
     val token =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiYmVuZGVyIn0.3KYJIoYvSPgTURznP8nWvsA2Yj2-vLqrm-ubqAeOlcQ"

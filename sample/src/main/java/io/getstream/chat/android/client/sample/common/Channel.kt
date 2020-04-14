@@ -7,22 +7,22 @@ import java.util.*
 
 
 @Entity(tableName = "channels")
-public class Channel {
-
+data class Channel(
     @PrimaryKey
-    var id: String = UUID.randomUUID().toString()
+    var id: String = UUID.randomUUID().toString(),
 
     @ColumnInfo(name = "remote_id")
-    var remoteId: String = ""
+    var remoteId: String = "",
 
     @ColumnInfo(name = "name")
-    var name: String = ""
+    var name: String = "",
 
     @ColumnInfo(name = "updated_at")
-    var updatedAt: Int = -1
+    var updatedAt: Int = -1,
 
     @ColumnInfo(name = "synced")
     var synched: Boolean = false
+) {
 
     override fun toString(): String {
         return "{$remoteId}"

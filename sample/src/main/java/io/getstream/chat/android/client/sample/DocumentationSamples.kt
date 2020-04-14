@@ -354,7 +354,7 @@ fun search() {
 fun listeningSomeEvent() {
     val subscription = channelController
         .events()
-        .filter("message.deleted")
+        .filter { event -> event.type == "message.deleted" }
         .subscribe { messageDeletedEvent ->
 
         }
@@ -413,7 +413,7 @@ fun stopListening() {
 fun notificationEvents() {
     channelController
         .events()
-        .filter("notification.added_to_channel")
+        .filter{it.type == "notification.added_to_channel"}
         .subscribe { notificationEvent ->
             notificationEvent
         }
@@ -659,11 +659,11 @@ fun startAndStopTyping() {
 
 fun reveivingTypingEvents() {
     // add typing start event handling
-    channelController.events().filter(EventType.TYPING_START).subscribe { startTyping ->
+    channelController.events().filter{it.type == EventType.TYPING_STOP}.subscribe { startTyping ->
 
     }
     // add typing top event handling
-    channelController.events().filter(EventType.TYPING_STOP).subscribe { startTyping ->
+    channelController.events().filter{it.type == EventType.TYPING_STOP}.subscribe { startTyping ->
 
     }
 }

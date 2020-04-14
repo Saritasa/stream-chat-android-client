@@ -32,6 +32,9 @@ interface ChannelsDao {
     @Query("select * from channels")
     fun getAllLive(): LiveData<List<Channel>>
 
+    @Query("select * from channels limit :limit offset :offset")
+    fun getPageLive(offset: Int, limit: Int): LiveData<List<Channel>>
+
     @Query("select * from channels order by updated_at")
     fun getAllRx(): Observable<List<Channel>>
 

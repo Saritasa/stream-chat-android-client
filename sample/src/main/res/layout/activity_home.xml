@@ -28,4 +28,10 @@
         android:layout_height="wrap_content"
         android:text="Test Users APIs" />
 
+    <Button
+            android:id="@+id/btnGenericViewModel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generic ViewModel" />
+
 </LinearLayout>

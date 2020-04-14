@@ -33,6 +33,7 @@ class MockClientBuilder {
     val token = "token"
     val serverErrorCode = 500
     val user = User().apply { id = userId }
+
     val connectedEvent = ConnectedEvent().apply {
         me = this@MockClientBuilder.user
         connectionId = this@MockClientBuilder.connectionId

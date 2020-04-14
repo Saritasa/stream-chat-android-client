@@ -23,6 +23,7 @@ import io.getstream.chat.android.client.token.TokenProvider
 import io.getstream.chat.android.client.utils.ImmediateTokenProvider
 import io.getstream.chat.android.client.utils.ProgressCallback
 import io.getstream.chat.android.client.utils.observable.ChatObservable
+import io.getstream.chat.android.client.utils.observable.EventsObservable
 import java.io.File
 
 
@@ -180,7 +181,7 @@ internal class ChatClientImpl(
         socket.removeListener(listener)
     }
 
-    override fun events(): ChatObservable {
+    override fun events(): EventsObservable {
         return socket.events()
     }
 

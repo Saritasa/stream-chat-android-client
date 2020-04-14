@@ -5,7 +5,6 @@ import android.content.Intent
 import com.facebook.stetho.Stetho
 import com.google.firebase.FirebaseApp
 import io.getstream.chat.android.client.ChatClient
-import io.getstream.chat.android.client.events.ConnectedEvent
 import io.getstream.chat.android.client.events.ErrorEvent
 import io.getstream.chat.android.client.logger.ChatLogLevel
 import io.getstream.chat.android.client.logger.ChatLoggerHandler
@@ -13,7 +12,7 @@ import io.getstream.chat.android.client.notifications.options.ChatNotificationCo
 import io.getstream.chat.android.client.sample.cache.AppDatabase
 import io.getstream.chat.android.client.sample.common.HomeActivity
 import io.getstream.chat.android.client.sample.common.KeyValue
-import io.getstream.chat.android.client.sample.repositories.ChannelsRepositoryLive
+import io.getstream.chat.android.client.sample.examples.generic.ChannelsRepository
 import io.getstream.chat.android.client.sample.repositories.ChannelsRepositoryRx
 import io.getstream.chat.android.client.sample.repositories.ChannelsRepositorySync
 import kotlin.time.ExperimentalTime
@@ -24,7 +23,7 @@ class App : Application() {
         lateinit var client: ChatClient
         lateinit var channelsRepositorySync: ChannelsRepositorySync
         lateinit var channelsRepositoryRx: ChannelsRepositoryRx
-        lateinit var channelsRepositoryLive: ChannelsRepositoryLive
+        lateinit var channelsRepositoryLive: ChannelsRepository
         lateinit var db: AppDatabase
         lateinit var cache: ChannelsCache
         lateinit var keyValue: KeyValue
@@ -95,7 +94,6 @@ class App : Application() {
             .filter {
                 it.cid != null && it.cid == "*"
             }
-            .filter("newMessage")
             .subscribe {
                 println(it)
             }
@@ -104,7 +102,11 @@ class App : Application() {
         cache = ChannelsCache(db.channels())
         channelsRepositorySync = ChannelsRepositorySync(client, cache)
         channelsRepositoryRx = ChannelsRepositoryRx(client, cache)
-        channelsRepositoryLive = ChannelsRepositoryLive(client, cache)
+        channelsRepositoryLive =
+            ChannelsRepository(
+                client,
+                cache
+            )
     }
 
 

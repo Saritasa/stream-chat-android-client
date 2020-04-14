@@ -18,6 +18,7 @@ import io.getstream.chat.android.client.socket.SocketListener
 import io.getstream.chat.android.client.token.TokenProvider
 import io.getstream.chat.android.client.utils.ProgressCallback
 import io.getstream.chat.android.client.utils.observable.ChatObservable
+import io.getstream.chat.android.client.utils.observable.EventsObservable
 import java.io.File
 
 interface ChatClient {
@@ -94,7 +95,7 @@ interface ChatClient {
 
     fun removeSocketListener(listener: SocketListener)
 
-    fun events(): ChatObservable
+    fun events(): ChatObservable<ChatEvent>
 
     //endregion
 

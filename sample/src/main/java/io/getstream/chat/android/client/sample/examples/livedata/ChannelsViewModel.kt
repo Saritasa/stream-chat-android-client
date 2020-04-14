@@ -6,10 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import io.getstream.chat.android.client.sample.ViewState
 import io.getstream.chat.android.client.sample.common.Channel
-import io.getstream.chat.android.client.sample.repositories.ChannelsRepositoryLive
+import io.getstream.chat.android.client.sample.examples.generic.ChannelsRepository
 
 
-class ChannelsViewModel(private val repository: ChannelsRepositoryLive) {
+class ChannelsViewModel(private val repository: ChannelsRepository) {
 
     fun channels(): LiveData<ViewState<List<Channel>>> {
 
@@ -18,12 +18,12 @@ class ChannelsViewModel(private val repository: ChannelsRepositoryLive) {
         liveData.addSource(MutableLiveData<ViewState<List<Channel>>>(ViewState.Loading())) {
             liveData.value = it
         }
-
-        liveData.addSource(Transformations.map(repository.getChannels()) { channels ->
-            ViewState.Success(channels)
-        }) {
-            if (it.data.isNotEmpty()) liveData.value = it
-        }
+//
+//        liveData.addSource(Transformations.map(repository.getChannels()) { channels ->
+//            ViewState.Success(channels)
+//        }) {
+//            if (it.data.isNotEmpty()) liveData.value = it
+//        }
 
         return liveData
     }

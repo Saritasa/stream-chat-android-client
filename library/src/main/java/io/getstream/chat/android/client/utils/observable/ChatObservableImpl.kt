@@ -1,32 +1,41 @@
 package io.getstream.chat.android.client.utils.observable
 
-import io.getstream.chat.android.client.errors.ChatError
-import io.getstream.chat.android.client.events.*
-import io.getstream.chat.android.client.socket.ChatSocketService
-import io.getstream.chat.android.client.socket.SocketListener
+open class ChatObservableImpl<T> : ChatObservable<T> {
 
-internal class ChatObservableImpl(private val service: ChatSocketService) : ChatObservable {
+    private val subscriptions = mutableListOf<Subscription<T>>()
+    private val filters = mutableListOf<(event: T) -> Boolean>()
 
-    private val subscriptions = mutableListOf<Subscription>()
-    private var eventsMapper = EventsMapper(this)
-    private val filters = mutableListOf<(event: ChatEvent) -> Boolean>()
     private var first = false
-    private var ignoreInitState = false
+    private var cache = false
+    private val cached = mutableListOf<T>()
 
-    fun onNext(event: ChatEvent) {
+    private var onSubListener: (() -> Unit)? = null
+    private var onUnSubListener: (() -> Unit)? = null
+
+    fun cache(): ChatObservable<T> {
+        cache = true
+        return this
+    }
+
+    fun onSubscribe(listener: () -> Unit) {
+        onSubListener = listener
+    }
+
+    fun onUnSubscribe(listener: () -> Unit) {
+        onUnSubListener = listener
+    }
+
+    fun onNext(event: T) {
+        if (cache) cached.add(event)
         subscriptions.forEach { it.onNext(event) }
     }
 
-    override fun filter(eventType: String): ChatObservable {
-        return filter { it.type == eventType }
-    }
-
-    override fun filter(predicate: (event: ChatEvent) -> Boolean): ChatObservable {
+    override fun filter(predicate: (event: T) -> Boolean): ChatObservable<T> {
         filters.add(predicate)
         return this
     }
 
-    override fun filter(vararg types: Class<out ChatEvent>): ChatObservable {
+    override fun filter(vararg types: Class<out T>): ChatObservable<T> {
         return filter { event ->
             types.any { type ->
                 type.isInstance(event)
@@ -34,75 +43,43 @@ internal class ChatObservableImpl(private val service: ChatSocketService) : Chat
         }
     }
 
-    override fun first(): ChatObservable {
+    override fun first(): ChatObservable<T> {
         first = true
         return this
     }
 
-    override fun ignoreInitState(): ChatObservable {
-        this.ignoreInitState = true
-        return this
-    }
-
-    override fun subscribe(listener: (ChatEvent) -> Unit): Subscription {
+    override fun subscribe(listener: (T) -> Unit): Subscription<T> {
         val result = Subscription(this, listener, filters, first)
-
-        if (subscriptions.isEmpty()) {
-            // add listener to socket events only once
-            service.addListener(eventsMapper)
-        }
-
         subscriptions.add(result)
 
-        if (!ignoreInitState) deliverInitState(result)
+        if (cache) {
+            cached.forEach { data ->
+                subscriptions.forEach { sub ->
+                    sub.onNext(data)
+                }
+            }
+        }
+
+        onSubListener?.invoke()
 
         return result
     }
 
-    override fun unsubscribe(subscription: Subscription) {
+    override fun unsubscribe(subscription: Subscription<T>) {
         subscriptions.remove(subscription)
 
-        if (subscriptions.isEmpty()) {
-            service.removeListener(eventsMapper)
-        }
+        onUnSubListener?.invoke()
     }
 
-    private fun deliverInitState(subscription: Subscription) {
-
-        var firstEvent: ChatEvent? = null
-
-        when (val state = service.state) {
-            is ChatSocketService.State.Connected -> firstEvent = state.event
-            is ChatSocketService.State.Connecting -> firstEvent = ConnectingEvent()
-            is ChatSocketService.State.Disconnected -> firstEvent = DisconnectedEvent()
-        }
-
-        if (firstEvent != null) subscription.onNext(firstEvent)
+    protected fun hasSubscribers(): Boolean {
+        return subscriptions.isNotEmpty()
     }
 
-    /**
-     * Maps methods of [SocketListener] to events of [ChatObservable]
-     */
-    private class EventsMapper(val observable: ChatObservableImpl) : SocketListener() {
+    protected fun addSubscription(sub: Subscription<T>) {
+        subscriptions.add(sub)
+    }
 
-        override fun onConnecting() {
-            observable.onNext(ConnectingEvent())
-        }
-
-        override fun onConnected(event: ConnectedEvent) {
-            observable.onNext(event)
-        }
-
-        override fun onDisconnected() {
-            observable.onNext(DisconnectedEvent())
-        }
-
-        override fun onEvent(event: ChatEvent) {
-            observable.onNext(event)
-        }
-
-        override fun onError(error: ChatError) {
-            observable.onNext(ErrorEvent(error))
-        }
+    protected fun makeSubscription(listener: (T) -> Unit): Subscription<T> {
+        return Subscription(this, listener, filters, first)
     }
 }

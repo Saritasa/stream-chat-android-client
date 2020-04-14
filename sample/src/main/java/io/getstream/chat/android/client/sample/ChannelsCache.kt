@@ -27,6 +27,10 @@ class ChannelsCache(val dao: ChannelsDao) {
         return dao.getAllLive()
     }
 
+    fun getPageLive(offset: Int, limit: Int): LiveData<List<Channel>> {
+        return dao.getPageLive(offset, limit)
+    }
+
     fun getById(id: String): Channel? {
         return dao.getById(id)
     }

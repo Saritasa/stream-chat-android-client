@@ -575,9 +575,14 @@ public class DocumentationSamplesJava {
 
         static class ListeningForEvents {
             {
-                Subscription subscription = channelController
+                Subscription<ChatEvent> subscription = channelController
                         .events()
-                        .filter("message.deleted")
+                        .filter(new Function1<ChatEvent, Boolean>() {
+                            @Override
+                            public Boolean invoke(ChatEvent chatEvent) {
+                                return chatEvent.getType() == "message.deleted";
+                            }
+                        })
                         .subscribe(messageDeletedEvent -> {
                             return Unit.INSTANCE;
                         });
@@ -655,7 +660,12 @@ public class DocumentationSamplesJava {
         static class NotificationEvents {
             {
                 channelController.events()
-                        .filter("notification.added_to_channel")
+                        .filter(new Function1<ChatEvent, Boolean>() {
+                            @Override
+                            public Boolean invoke(ChatEvent chatEvent) {
+                                return chatEvent.getType().equals("notification.added_to_channel");
+                            }
+                        })
                         .subscribe(addToChannel -> Unit.INSTANCE);
             }
         }
@@ -1045,10 +1055,20 @@ public class DocumentationSamplesJava {
 
                 static void receivingTypingInvicatorEvents() {
                     // add typing start event handling
-                    channelController.events().filter(EventType.INSTANCE.getTYPING_START()).subscribe(startedTyping -> Unit.INSTANCE);
+                    channelController.events().filter(new Function1<ChatEvent, Boolean>() {
+                        @Override
+                        public Boolean invoke(ChatEvent chatEvent) {
+                            return chatEvent.getType().equals(EventType.INSTANCE.getTYPING_START());
+                        }
+                    }).subscribe(startedTyping -> Unit.INSTANCE);
 
                     // add typing top event handling
-                    channelController.events().filter(EventType.INSTANCE.getTYPING_STOP()).subscribe(startedTyping -> Unit.INSTANCE);
+                    channelController.events().filter(new Function1<ChatEvent, Boolean>() {
+                        @Override
+                        public Boolean invoke(ChatEvent chatEvent) {
+                            return chatEvent.getType().equals(EventType.INSTANCE.getTYPING_STOP());
+                        }
+                    }).subscribe(startedTyping -> Unit.INSTANCE);
                 }
             }
         }

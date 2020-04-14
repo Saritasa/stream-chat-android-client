@@ -13,6 +13,7 @@ import io.getstream.chat.android.client.events.ConnectedEvent
 import io.getstream.chat.android.client.events.ErrorEvent
 import io.getstream.chat.android.client.utils.observable.Subscription
 import io.getstream.chat.android.client.api.models.QuerySort
+import io.getstream.chat.android.client.events.ChatEvent
 import io.getstream.chat.android.client.sample.App
 import io.getstream.chat.android.client.sample.R
 
@@ -20,7 +21,7 @@ import io.getstream.chat.android.client.sample.R
 class ChannelsListActivity : AppCompatActivity() {
 
     val client = App.client
-    var sub: Subscription? = null
+    var sub: Subscription<ChatEvent>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
 

@@ -7,6 +7,7 @@ import androidx.core.view.children
 import io.getstream.chat.android.client.api.models.WatchChannelRequest
 import io.getstream.chat.android.client.api.models.QueryChannelsRequest
 import io.getstream.chat.android.client.errors.ChatError
+import io.getstream.chat.android.client.events.ChatEvent
 import io.getstream.chat.android.client.events.ConnectedEvent
 import io.getstream.chat.android.client.events.ErrorEvent
 import io.getstream.chat.android.client.events.TypingStartEvent
@@ -31,7 +32,7 @@ class TestChannelsApiMethodsActivity : AppCompatActivity() {
     val channelId = "general"
     val channelType = "team"
 
-    var chatSub: Subscription? = null
+    var chatSub: Subscription<ChatEvent>? = null
     var watchingChannel: Channel? = null
 
     val benderUserId = "bender"

@@ -20,6 +20,14 @@ class JustObservable(private val event: ChatEvent) : ChatObservable {
         return this
     }
 
+    override fun onSubscribe(listener: () -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun <K> map(mapper: (T) -> K): ChatObservable<K> {
+        TODO("Not yet implemented")
+    }
+
     override fun subscribe(listener: (ChatEvent) -> Unit): Subscription {
         listener(event)
         return Subscription(this, listener, mutableListOf(), false)
