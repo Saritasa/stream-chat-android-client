@@ -15,7 +15,7 @@ Create layout from SDK view components
         android:layout_height="wrap_content"/>
 </FrameLayout>
 ```
-Add fragment or activity
+Add fragment or activity. View will be automatically bound with viewmodel
 ```kotlin
 class ChannelsFragment: Fragment {
 
@@ -28,7 +28,8 @@ class ChannelsFragment: Fragment {
         chat.viewModels.bindChannelsList(
             this,
             User("bender"),
-            "token"
+            "token",
+            {channelId -> navigator.goToChannel(channelId)}
         )
     }
 }
@@ -42,7 +43,8 @@ class ChannelsFragment: Fragment {
         val viewModel = chat.viewModels.createChannelsList(
             this,
             User("bender"),
-            "token"
+            "token",
+            {channelId -> navigator.goToChannel(channelId)}
         )
 
         viewModel.channels().subscribe { result ->
@@ -58,6 +60,39 @@ class ChannelsFragment: Fragment {
                 }
             }
         }
+    }
+}
+```
+# Creating channel fragment
+Create layout from SDK view components
+```xml
+<LinearLayout>
+    <ChatMessagesList 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <ChatInputView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
+```
+Add fragment or activity
+```kotlin
+class ChannelFragment: Fragment {
+
+    fun onCreateView(){
+        LayoutInflater.inflate(R.layout.fragment_channel)
+    }
+
+    fun onViewCreated() {
+        val chat = Chat.instance
+        chat.viewModels.bindChannel(
+            "channel-id"
+            this,
+            User("bender"),
+            "token"
+        )
     }
 }
 ```
