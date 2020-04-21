@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import io.getstream.chat.android.client.ChatClient
 import io.getstream.chat.android.client.sample.R
-import io.getstream.chat.android.client.sample.examples.generic.ChannelsActivity
+import io.getstream.chat.android.client.sample.examples.generic.HomeActivity
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlin.time.ExperimentalTime
 
@@ -34,7 +34,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         btnGenericViewModel.setOnClickListener {
-            startActivity(Intent(this, ChannelsActivity::class.java))
+            startActivity(Intent(this, HomeActivity::class.java))
         }
     }
 }

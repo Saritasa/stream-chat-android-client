@@ -4,19 +4,28 @@
        android:layout_width="match_parent"
        android:layout_height="match_parent">
 
+    <ProgressBar
+            android:id="@+id/networkProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:indeterminate="true"
+            android:progress="1"/>
+
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/channelsList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
     <ProgressBar
-            android:id="@+id/progressView"
+            android:id="@+id/cacheProgress"
             android:layout_gravity="center"
             android:layout_width="50dp"
             android:layout_height="50dp"/>
 
     <TextView
             android:id="@+id/errorView"
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

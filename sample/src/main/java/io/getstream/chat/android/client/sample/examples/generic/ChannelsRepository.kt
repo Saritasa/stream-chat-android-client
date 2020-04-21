@@ -1,8 +1,11 @@
 package io.getstream.chat.android.client.sample.examples.generic
 
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.*
 import io.getstream.chat.android.client.ChatClient
 import io.getstream.chat.android.client.api.models.QueryChannelsRequest
+import io.getstream.chat.android.client.api.models.QuerySort
 import io.getstream.chat.android.client.call.Call
 import io.getstream.chat.android.client.sample.ChannelsCache
 import io.getstream.chat.android.client.sample.common.ApiMapper
@@ -18,29 +21,13 @@ class ChannelsRepository(
 
     fun getChannels(): ChatObservable<RepoResult<List<Channel>>> {
 
-//        cache.dao.getPageLive(0, 10).observe({
-//            object : Lifecycle() {
-//                override fun addObserver(observer: LifecycleObserver) {
-//
-//                }
-//
-//                override fun removeObserver(observer: LifecycleObserver) {
-//
-//                }
-//
-//                override fun getCurrentState(): State {
-//
-//                }
-//
-//            }
-//        }, {
-//
-//        })
-
         val resource =
             object : NetworkResource<List<Channel>, List<io.getstream.chat.android.client.models.Channel>>() {
                 override fun getRemote(): Call<List<io.getstream.chat.android.client.models.Channel>> {
-                    return client.queryChannels(QueryChannelsRequest(FilterObject("type", "messaging"), 0, 10))
+                    val filter = FilterObject("type", "messaging")
+                    val sort = QuerySort()
+                    sort.asc("created_at")
+                    return client.queryChannels(QueryChannelsRequest(filter, 0, 10, sort))
                 }
 
                 override fun getLocal(): LiveData<List<Channel>> {
@@ -51,9 +38,12 @@ class ChannelsRepository(
                     return true
                 }
 
-                override fun storeRemote(data: List<io.getstream.chat.android.client.models.Channel>) {
+                override fun storeRemote(
+                    data: List<io.getstream.chat.android.client.models.Channel>,
+                    onComplete: (Boolean) -> Unit
+                ) {
                     Thread {
-                        cache.dao.upsert(ApiMapper.mapChannels(data))
+                        cache.dao.upsert(ApiMapper.mapChannels(data), onComplete)
                     }.start()
                 }
 
@@ -68,20 +58,37 @@ class ChannelsRepository(
                     val obs = Observer<List<Channel>> { data ->
                         if (!firstPassed) {
                             firstPassed = true
-                            result.onNext(RepoResult.Success(data))
+
+                            if (data.isEmpty()) {
+                                result.onNext(RepoResult.EmptyCache)
+                            } else {
+                                result.onNext(RepoResult.StaleCache(data))
+                            }
+
+                            result.onNext(RepoResult.NetworkLoading)
 
                             getRemote().enqueue { response ->
                                 if (response.isSuccess) {
-                                    storeRemote(response.data())
+                                    storeRemote(response.data()) { changed ->
+                                        if (!changed) {
+                                            Handler(Looper.getMainLooper()).post {
+                                                result.onNext(RepoResult.NoNetworkUpdate)
+                                            }
+                                        }
+                                    }
                                 } else {
-                                    result.onNext(RepoResult.Error(response.error()))
+                                    result.onNext(RepoResult.NetworkLoadingError(response.error()))
                                 }
                             }
 
                         } else {
-                            result.onNext(RepoResult.Success(data))
+                            result.onNext(RepoResult.FreshCache(data))
                         }
                     }
+
+                    result.cache()
+
+                    result.onNext(RepoResult.CacheLoading)
 
                     result.onUnSubscribe {
                         local.removeObserver(obs)
@@ -119,7 +126,7 @@ class ChannelsRepository(
         abstract fun getRemote(): Call<RemoteData>
         abstract fun getLocal(): LiveData<LocalData>
         abstract fun requiresRemoteFetch(): Boolean
-        abstract fun storeRemote(data: RemoteData)
+        abstract fun storeRemote(data: RemoteData, onComplete: (Boolean) -> Unit)
         abstract fun toObservable(): ChatObservable<RepoResult<LocalData>>
     }
 }

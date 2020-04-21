@@ -8,6 +8,7 @@ import io.getstream.chat.android.client.models.User
 import io.getstream.chat.android.client.sample.Chat
 import io.getstream.chat.android.client.sample.R
 import io.getstream.chat.android.client.sample.common.BaseChannelsListFragment
+import kotlinx.android.synthetic.main.fragment_channels_generic.*
 
 class ChannelsListFragment : BaseChannelsListFragment() {
 
@@ -32,5 +33,10 @@ class ChannelsListFragment : BaseChannelsListFragment() {
             user,
             token
         )
+
+
+        chatChannelsList.onChannelClickListener {
+            (activity as HomeActivity).goToChannel(it.remoteId)
+        }
     }
 }

@@ -57,30 +57,41 @@ interface ChannelsDao {
     fun delete(fromRemoteId: String, toRemoteId: String): Single<Int>
 
     @Transaction
-    fun upsert(channels: List<Channel>) {
-        channels.forEach { upsert(it) }
+    fun upsert(channels: List<Channel>, onComplete: (Boolean) -> Unit = {}) {
+        var changed = false
+        channels.forEach {
+            changed = upsert(it) || changed
+        }
+        onComplete(changed)
     }
 
     @Transaction
-    fun upsert(channel: Channel) {
+    fun upsert(channel: Channel): Boolean {
+
+        var changed = false
 
         if (channel.remoteId.isEmpty()) {
             channel.synched = false
             insert(channel)
+            changed = true
         } else {
             val ch = getByRemoteId(channel.remoteId)
             channel.synched = true
             if (ch == null) {
                 insert(channel)
+                changed = true
             } else {
 
                 if (isNew(channel, ch)) {
                     channel.id = ch.id
                     val updated = update(channel)
+                    changed = updated > 0
                     Log.d("channels-dao", updated.toString())
                 }
             }
         }
+
+        return changed
     }
 
     @Transaction

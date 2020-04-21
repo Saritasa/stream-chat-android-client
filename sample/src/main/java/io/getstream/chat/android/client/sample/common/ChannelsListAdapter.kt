@@ -9,10 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import io.getstream.chat.android.client.sample.R
 
 
-class ChannelsListAdapter(data: List<Channel>) :
-    RecyclerView.Adapter<ChannelsListAdapter.VH>() {
+class ChannelsListAdapter(data: List<Channel>) : RecyclerView.Adapter<ChannelsListAdapter.VH>() {
 
     val data = mutableListOf<Channel>()
+    var clickListener: ((Channel) -> Unit)? = null
 
     init {
         this.data.addAll(data)
@@ -36,6 +36,8 @@ class ChannelsListAdapter(data: List<Channel>) :
         val channel = data[position]
         holder.textId.text = channel.id
         holder.textName.text = channel.name
+
+        holder.itemView.setOnClickListener { clickListener?.invoke(channel) }
     }
 
     fun clear() {
@@ -46,7 +48,6 @@ class ChannelsListAdapter(data: List<Channel>) :
     fun setOrUpdate(
         channels: List<Channel>
     ) {
-        if (channels.isEmpty()) return
         if (data.isEmpty()) {
             data.addAll(channels)
             notifyItemInserted(0)
@@ -98,6 +99,9 @@ class ChannelsListAdapter(data: List<Channel>) :
         current: List<Channel>,
         update: List<Channel>
     ): List<Channel> {
+
+        if (update.isEmpty()) return emptyList()
+
         val result: MutableList<Channel> = ArrayList(current)
         for (ch in update) {
 

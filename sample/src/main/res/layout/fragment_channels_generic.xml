@@ -3,7 +3,9 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
-    <io.getstream.chat.android.client.sample.examples.generic.ChatChannelsList android:layout_width="match_parent"
-                                                                               android:layout_height="match_parent"/>
+    <io.getstream.chat.android.client.sample.examples.generic.ChatChannelsList
+            android:id="@+id/chatChannelsList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
 </FrameLayout>

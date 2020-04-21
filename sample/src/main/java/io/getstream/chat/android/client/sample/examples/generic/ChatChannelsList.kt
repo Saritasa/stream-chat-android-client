@@ -16,30 +16,55 @@ class ChatChannelsList : FrameLayout {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
+    private val adapter = ChannelsListAdapter(emptyList())
+
     init {
         LayoutInflater.from(context).inflate(R.layout.chat_channels_list, this, true)
         channelsList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        channelsList.adapter = adapter
+
+        cacheProgress.visibility = View.GONE
+        networkProgress.visibility = View.GONE
+        errorView.visibility = View.GONE
+        channelsList.visibility = View.GONE
     }
 
     fun setError(error: ChatError) {
         errorView.text = "Error: ${error.message}"
 
-        progressView.visibility = View.GONE
+        cacheProgress.visibility = View.GONE
+        networkProgress.visibility = View.GONE
         errorView.visibility = View.VISIBLE
         channelsList.visibility = View.GONE
     }
 
-    fun setProgress() {
-        progressView.visibility = View.VISIBLE
-        errorView.visibility = View.GONE
-        channelsList.visibility = View.GONE
+    fun showCacheLoading() {
+        cacheProgress.visibility = View.VISIBLE
     }
 
-    fun setData(data: List<Channel>) {
-        progressView.visibility = View.GONE
-        errorView.visibility = View.GONE
-        channelsList.visibility = View.VISIBLE
+    fun hideCacheLoading() {
+        cacheProgress.visibility = View.GONE
+    }
 
-        channelsList.adapter = ChannelsListAdapter(data)
+    fun showNetworkLoading() {
+        networkProgress.visibility = View.VISIBLE
+    }
+
+    fun hideNetworkLoading() {
+        networkProgress.visibility = View.GONE
+    }
+
+    fun showCacheData(data: List<Channel>) {
+        adapter.setOrUpdate(data)
+        channelsList.visibility = View.VISIBLE
+    }
+
+    fun showLatestData(data: List<Channel>) {
+        adapter.setOrUpdate(data)
+        channelsList.visibility = View.VISIBLE
+    }
+
+    fun onChannelClickListener(listener: (channel: Channel) -> Unit) {
+        adapter.clickListener = listener
     }
 }
